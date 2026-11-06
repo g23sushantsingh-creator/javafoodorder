@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Online Food Feedback System</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons & Font Awesome -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body>
+
+    <div class="admin-layout">
+        <!-- Reusable Sidebar -->
+        <div th:replace="~{admin/sidebar :: adminSidebar('dashboard')}"></div>
+
+        <!-- Main Content Area -->
+        <main class="admin-main">
+            <!-- Header Bar -->
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
+                <div>
+                    <h2 class="fw-bold text-dark mb-1">Cafeteria Analytics Dashboard</h2>
+                    <p class="text-muted mb-0">Real-time dynamic metrics, feedback distributions, and quality tracking</p>
+                </div>
+                <div class="d-flex gap-2">
+                    <a th:href="@{/admin/foods/new}" class="btn btn-view-feedback px-3 py-2 small rounded-pill">
+                        <i class="fa-solid fa-plus me-1"></i> Add New Dish
+                    </a>
+                </div>
+            </div>
+
+            <!-- SECTION A: OVERVIEW STAT CARDS -->
+            <div class="row g-3 mb-4">
+                <!-- Total Food Items -->
+                <div class="col-12 col-sm-6 col-xl-3">
+                    <div class="admin-stat-card">
+                        <div>
+                            <div class="stat-number" th:text="${stats.totalFoodItems}">24</div>
+                            <div class="stat-title">Total Food Items</div>
+                        </div>
+                        <div class="stat-icon-wrapper stat-icon-primary">
+                            <i class="fa-solid fa-bowl-food"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Total Feedback Received -->
+                <div class="col-12 col-sm-6 col-xl-3">
+                    <div class="admin-stat-card">
+                        <div>
+                            <div class="stat-number" th:text="${stats.totalFeedbacks}">16</div>
+                            <div class="stat-title">Total Feedbacks</div>
+                        </div>
+                        <div class="stat-icon-wrapper stat-icon-success">
+                            <i class="fa-solid fa-comments"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Overall Average Rating -->
+                <div class="col-12 col-sm-6 col-xl-3">
+                    <div class="admin-stat-card">
+                        <div>
+                            <div class="stat-number">
+                                <span th:text="${stats.overallAverageRating}">4.8</span>
+                                <small class="fs-6 text-warning"><i class="fa-solid fa-star"></i></small>
+                            </div>
+                            <div class="stat-title">Average Rating</div>
+                        </div>
+                        <div class="stat-icon-wrapper stat-icon-warning">
+                            <i class="fa-solid fa-star-half-stroke"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Total Low-Rated Reviews (<= 2 stars) -->
+                <div class="col-12 col-sm-6 col-xl-3">
+                    <div class="admin-stat-card">
+                        <div>
+                            <div class="stat-number text-danger" th:text="${stats.totalLowRatings}">0</div>
+                            <div class="stat-title">Low Reviews (1-2★)</div>
+                        </div>
+                        <div class="stat-icon-wrapper stat-icon-danger">
+                            <i class="fa-solid fa-triangle-exclamation"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row g-4 mb-4">
+                <!-- SECTION B: HIGHEST RATED DISH THIS WEEK -->
+                <div class="col-12 col-lg-6">
+                    <div class="card border-0 shadow-sm rounded-4 h-100 overflow-hidden">
+                        <div class="card-header bg-white border-0 pt-4 px-4 pb-0 d-flex justify-content-between align-items-center">
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="badge bg-warning text-dark px-2 py-1 rounded-pill"><i class="fa-solid fa-crown"></i> Spotlight</span>
+                                <h5 class="fw-bold text-dark mb-0">Highest Rated Dish This Week</h5>
+                            </div>
+                            <span class="badge bg-light text-muted small border" 
+                                  th:text="${stats.highestRatedDishThisWeek.allTimeFallback ? 'Overall Top Rated' : 'Current Week'}">
+                                Current Week
+                            </span>
+                        </div>
+                        <div class="card-body p-4">
+                            <div class="row align-items-center g-3">
+                                <div class="col-sm-5">
+                                    <img th:src="${stats.highestRatedDishThisWeek.imageUrl != null and !stats.highestRatedDishThisWeek.imageUrl.isEmpty() ? stats.highestRatedDishThisWeek.imageUrl : 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=800&q=80'}" 
+                                         class="rounded-4 img-fluid w-100 shadow-sm" style="height: 160px; object-fit: cover;" 
+                                         th:alt="${stats.highestRatedDishThisWeek.name}" onerror="this.onerror=null;this.src='/images/fallback-food.svg';">
+                                </div>
+                                <div class="col-sm-7">
+                                    <span class="badge bg-light text-secondary rounded-pill mb-2 px-2.5 py-1" th:text="${stats.highestRatedDishThisWeek.category}">Category</span>
+                                    <h4 class="fw-bold text-dark mb-2" th:text="${stats.highestRatedDishThisWeek.name}">Dish Name</h4>
+                                    
+                                    <div class="d-flex align-items-center gap-2 mb-3">
+                                        <div class="d-inline-flex align-items-center gap-1 bg-warning bg-opacity-10 text-warning px-2.5 py-1 rounded-pill fw-bold">
+                                            <i class="fa-solid fa-star text-warning"></i>
+                                            <span class="text-dark" th:text="${stats.highestRatedDishThisWeek.averageRating}">5.0</span>
+                                            <span class="text-muted small">/ 5.0</span>
+                                        </div>
+                                        <span class="text-muted small" th:text="'(' + ${stats.highestRatedDishThisWeek.reviewCount} + ' submissions)'">
+                                            (0 submissions)
+                                        </span>
+                                    </div>
+                                    <a th:href="@{'/food/' + ${stats.highestRatedDishThisWeek.foodItemId}}" target="_blank" class="btn btn-outline-dark btn-sm rounded-pill px-3">
+                                        <span>View Public Reviews</span>
+                                        <i class="fa-solid fa-arrow-up-right-from-square ms-1"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SECTION C: TOP 3 MOST DISCUSSED ITEMS -->
+                <div class="col-12 col-lg-6">
+                    <div class="card border-0 shadow-sm rounded-4 h-100">
+                        <div class="card-header bg-white border-0 pt-4 px-4 pb-1 d-flex justify-content-between align-items-center">
+                            <h5 class="fw-bold text-dark mb-0"><i class="fa-solid fa-fire text-danger me-2"></i>Top 3 Most Discussed Dishes</h5>
+                            <small class="text-muted">By review volume</small>
+                        </div>
+                        <div class="card-body p-4 pt-2">
+                            <div th:if="${#lists.isEmpty(stats.top3DiscussedItems)}" class="text-muted text-center py-4">
+                                No feedback recorded yet.
+                            </div>
+                            <div th:unless="${#lists.isEmpty(stats.top3DiscussedItems)}" class="d-flex flex-column gap-3">
+                                <div th:each="item, stat : ${stats.top3DiscussedItems}" 
+                                     class="d-flex align-items-center justify-content-between p-3 rounded-3 bg-light border">
+                                    <div class="d-flex align-items-center gap-3">
+                                        <span class="badge rounded-circle text-white d-flex align-items-center justify-content-center"
+                                              style="width: 28px; height: 28px; font-weight: 700;"
+                                              th:classappend="${stat.index == 0 ? 'bg-warning' : (stat.index == 1 ? 'bg-secondary' : 'bg-dark')}"
+                                              th:text="${stat.index + 1}">1</span>
+                                        <div>
+                                            <h6 class="mb-0 fw-bold text-dark" th:text="${item.name}">Dish Name</h6>
+                                            <small class="text-muted" th:text="${item.category}">Category</small>
+                                        </div>
+                                    </div>
+                                    <div class="text-end">
+                                        <div class="fw-bold text-dark" th:text="${item.reviewCount} + ' Reviews'">0 Reviews</div>
+                                        <small class="text-warning fw-semibold">
+                                            <i class="fa-solid fa-star"></i> <span th:text="${item.averageRating}">0.0</span>
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SECTION D: NEEDS IMPROVEMENT SECTION (Important warning section) -->
+            <div class="card border-0 shadow-sm rounded-4 mb-4 needs-improvement-card">
+                <div class="card-header bg-transparent border-0 pt-4 px-4 pb-2 d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="fa-solid fa-triangle-exclamation text-warning fs-5"></i>
+                            <h5 class="fw-bold text-dark mb-0">Needs Improvement Quality Monitor</h5>
+                        </div>
+                        <p class="text-muted small mb-0 mt-1">Dishes that have received 1-star or 2-star customer feedback, sorted by low-rating frequency</p>
+                    </div>
+                    <span class="badge bg-warning text-dark px-3 py-2 rounded-pill fw-bold">
+                        <i class="fa-solid fa-bell me-1"></i> Quality Alert
+                    </span>
+                </div>
+                <div class="card-body p-4">
+                    <div th:if="${#lists.isEmpty(stats.needsImprovementItems)}" class="text-center py-4 text-success">
+                        <i class="fa-solid fa-circle-check fs-1 text-success mb-2"></i>
+                        <h6 class="fw-bold">All Dishes Performing Well!</h6>
+                        <p class="text-muted small mb-0">No food items have received 1-star or 2-star ratings.</p>
+                    </div>
+
+                    <div th:unless="${#lists.isEmpty(stats.needsImprovementItems)}" class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Food Item</th>
+                                    <th>Category</th>
+                                    <th>Low Ratings (1-2★)</th>
+                                    <th>Total Reviews</th>
+                                    <th>Low Rating %</th>
+                                    <th>Average Rating</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="dish : ${stats.needsImprovementItems}">
+                                    <td>
+                                        <div class="d-flex align-items-center gap-2">
+                                            <img th:src="${dish.imageUrl != null ? dish.imageUrl : 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=800&q=80'}" 
+                                                 class="rounded-3" style="width: 44px; height: 44px; object-fit: cover;" th:alt="${dish.name}" onerror="this.onerror=null;this.src='/images/fallback-food.svg';">
+                                            <span class="fw-bold text-dark" th:text="${dish.name}">Dish Name</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-light text-secondary rounded-pill" th:text="${dish.category}">Category</span>
+                                    </td>
+                                    <td>
+                                        <span class="badge-low-rate">
+                                            <i class="fa-solid fa-thumbs-down me-1"></i>
+                                            <span th:text="${dish.lowRatingCount}">0</span>
+                                        </span>
+                                    </td>
+                                    <td class="text-secondary" th:text="${dish.totalReviewCount}">0</td>
+                                    <td>
+                                        <div class="d-flex align-items-center gap-2">
+                                            <div class="progress flex-grow-1" style="height: 6px; width: 80px;">
+                                                <div class="progress-bar bg-danger" th:style="'width: ' + ${dish.lowRatingPercentage} + '%'"></div>
+                                            </div>
+                                            <span class="small fw-bold text-danger" th:text="${dish.lowRatingPercentage} + '%'">0%</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-warning bg-opacity-25 text-dark fw-bold">
+                                            <i class="fa-solid fa-star text-warning me-1"></i><span th:text="${dish.averageRating}">0.0</span>
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <a th:href="@{'/admin/feedbacks?foodItemId=' + ${dish.foodItemId} + '&rating=2'}" 
+                                           class="btn btn-outline-warning btn-sm rounded-pill px-3">
+                                            Inspect Reviews
+                                        </a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SECTION E: RECENT CUSTOMER FEEDBACK (Latest 10) -->
+            <div class="card border-0 shadow-sm rounded-4">
+                <div class="card-header bg-white border-0 pt-4 px-4 pb-2 d-flex justify-content-between align-items-center">
+                    <div>
+                        <h5 class="fw-bold text-dark mb-0"><i class="fa-solid fa-clock-rotate-left text-primary me-2"></i>Recent Customer Feedback</h5>
+                        <p class="text-muted small mb-0">Latest verified dining feedback submissions</p>
+                    </div>
+                    <a th:href="@{/admin/feedbacks}" class="btn btn-outline-secondary btn-sm rounded-pill px-3">
+                        View All Feedbacks <i class="fa-solid fa-arrow-right ms-1"></i>
+                    </a>
+                </div>
+                <div class="card-body p-4 pt-1">
+                    <div th:if="${#lists.isEmpty(stats.recentFeedbacks)}" class="text-muted text-center py-4">
+                        No recent feedback records.
+                    </div>
+                    <div th:unless="${#lists.isEmpty(stats.recentFeedbacks)}" class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Customer</th>
+                                    <th>Dish</th>
+                                    <th>Rating</th>
+                                    <th>Customer Comment</th>
+                                    <th>Submitted Date</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="fb : ${stats.recentFeedbacks}">
+                                    <td>
+                                        <div class="d-flex align-items-center gap-2">
+                                            <div class="reviewer-avatar" style="width: 34px; height: 34px; font-size: 0.85rem;"
+                                                 th:text="${#strings.substring(fb.customerName, 0, 1)}">U</div>
+                                            <span class="fw-semibold text-dark" th:text="${fb.customerName}">Customer</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="fw-bold text-dark" th:text="${fb.foodItem.name}">Dish Name</span>
+                                    </td>
+                                    <td>
+                                        <span class="badge rounded-pill fw-bold"
+                                              th:classappend="${fb.rating >= 4 ? 'bg-success text-white' : (fb.rating == 3 ? 'bg-warning text-dark' : 'bg-danger text-white')}">
+                                            <i class="fa-solid fa-star me-1 small"></i><span th:text="${fb.rating} + '.0'">5.0</span>
+                                        </span>
+                                    </td>
+                                    <td class="text-secondary small" style="max-width: 320px;" th:text="${fb.comment}">Comment</td>
+                                    <td class="text-muted small" th:text="${fb.createdAt != null ? #temporals.format(fb.createdAt, 'dd MMM yyyy, hh:mm a') : 'Recent'}">
+                                        Date
+                                    </td>
+                                    <td>
+                                        <form th:action="@{'/admin/feedbacks/delete/' + ${fb.id}}" method="post" 
+                                              onsubmit="return confirm('Are you sure you want to delete this customer feedback?');" class="d-inline">
+                                            <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                                            <button type="submit" class="btn btn-outline-danger btn-sm rounded-circle" title="Delete feedback">
+                                                <i class="fa-solid fa-trash-can"></i>
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- Bootstrap 5 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

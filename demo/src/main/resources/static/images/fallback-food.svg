@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" role="img" aria-label="Food image unavailable">
+  <defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff4ec"/><stop offset="1" stop-color="#ffe0cc"/></linearGradient></defs>
+  <rect width="800" height="600" fill="url(#bg)"/>
+  <circle cx="400" cy="280" r="130" fill="#fff" stroke="#ff6b35" stroke-width="10"/>
+  <circle cx="400" cy="280" r="90" fill="none" stroke="#ffb703" stroke-width="6" stroke-dasharray="14 10"/>
+  <path d="M230 200v160M215 200v50a15 15 0 0 0 30 0v-50M230 360v0" stroke="#ff6b35" stroke-width="9" stroke-linecap="round" fill="none" transform="translate(-60 20)"/>
+  <path d="M590 200c-22 22-22 70 0 80v80" stroke="#ff6b35" stroke-width="9" stroke-linecap="round" fill="none" transform="translate(10 20)"/>
+  <text x="400" y="480" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="34" font-weight="700" fill="#ff6b35">Delicious food</text>
+  <text x="400" y="525" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="22" fill="#9a5b3c">Image coming soon</text>
+</svg>

@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Online Food Feedback System</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons & Font Awesome -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body>
+
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-dark navbar-custom sticky-top">
+        <div class="container">
+            <a class="navbar-brand" th:href="@{/}">
+                <div class="brand-icon">
+                    <i class="bi bi-egg-fried"></i>
+                </div>
+                <span>Food Feedback System</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navContent">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navContent">
+                <ul class="navbar-nav ms-auto align-items-center">
+                    <li class="nav-item">
+                        <a class="nav-link active" th:href="@{/}"><i class="bi bi-house-door me-1"></i> Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#foodMenuSection"><i class="bi bi-menu-button-wide me-1"></i> Food Items</a>
+                    </li>
+                    <li class="nav-item ms-lg-2">
+                        <a th:href="@{/admin}" class="btn btn-outline-warning btn-sm rounded-pill px-3">
+                            <i class="fa-solid fa-shield-halved me-1"></i> Admin Portal
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-3" th:if="${errorMessage}">
+        <div class="alert alert-danger alert-dismissible fade show shadow-sm" role="alert">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i><span th:text="${errorMessage}">Error</span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    </div>
+
+    <!-- Hero / Welcome Section -->
+    <header class="hero-banner text-center">
+        <div class="container">
+            <span class="badge bg-warning text-dark px-3 py-2 rounded-pill mb-3 fw-bold">
+                <i class="bi bi-stars me-1"></i> Campus Dining Feedback Portal
+            </span>
+            <h1 class="hero-title">Delicious Food, Honest Reviews</h1>
+            <p class="hero-subtitle">
+                Explore our menu items, discover what fellow students love, and rate your dining experience with genuine feedback!
+            </p>
+
+            <!-- Search Bar -->
+            <div class="search-wrapper">
+                <div class="input-group">
+                    <input type="text" id="foodSearchInput" class="form-control search-input" 
+                           placeholder="Search meals by name, category or description...">
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="container my-5" id="foodMenuSection">
+        <!-- Section Header and Category Filter -->
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
+            <div>
+                <h2 class="fw-bold mb-1 text-dark">Available Food Items</h2>
+                <p class="text-muted mb-0">Select any dish to view customer reviews or submit your rating</p>
+            </div>
+            <!-- Category Pills with Attractive Icons -->
+            <div class="d-flex flex-wrap gap-2">
+                <button class="filter-btn active" data-filter="all">
+                    <i class="fa-solid fa-border-all"></i>
+                    <span>All Items</span>
+                </button>
+                <button class="filter-btn" data-filter="Pizza & Italian">
+                    <i class="fa-solid fa-pizza-slice"></i>
+                    <span>Pizza & Italian</span>
+                </button>
+                <button class="filter-btn" data-filter="Burgers">
+                    <i class="fa-solid fa-burger"></i>
+                    <span>Burgers</span>
+                </button>
+                <button class="filter-btn" data-filter="Wraps & Rolls">
+                    <i class="fa-solid fa-scroll"></i>
+                    <span>Wraps</span>
+                </button>
+                <button class="filter-btn" data-filter="Indian Special">
+                    <i class="fa-solid fa-bowl-rice"></i>
+                    <span>Indian Special</span>
+                </button>
+                <button class="filter-btn" data-filter="Desserts">
+                    <i class="fa-solid fa-ice-cream"></i>
+                    <span>Desserts</span>
+                </button>
+                <button class="filter-btn" data-filter="Healthy">
+                    <i class="fa-solid fa-seedling"></i>
+                    <span>Healthy</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Food Items Grid -->
+        <div class="row g-4" id="foodGrid">
+            <!-- Iterate over Food Items -->
+            <div th:each="food : ${foodItems}" class="col-12 col-md-6 col-lg-4 food-item-col"
+                 th:data-name="${food.name}"
+                 th:data-desc="${food.description}"
+                 th:data-category="${food.category}">
+                <div class="food-card">
+                    <!-- Image and Tags -->
+                    <div class="card-img-container">
+                        <img th:src="${food.imageUrl != null ? food.imageUrl : 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=800&q=80'}" 
+                             th:alt="${food.name}"
+                             onerror="this.onerror=null;this.src='/images/fallback-food.svg';"
+                             loading="lazy">
+                        <span class="category-tag" th:text="${food.category}">Main Course</span>
+                        <span class="price-tag" th:text="'₹' + ${#numbers.formatDecimal(food.price, 1, 2)}">₹0.00</span>
+                    </div>
+
+                    <!-- Card Body -->
+                    <div class="card-body-content">
+                        <h3 class="food-title" th:text="${food.name}">Food Item Name</h3>
+                        <p class="food-desc" th:text="${food.description}">Detailed food description...</p>
+
+                        <!-- Rating Badge and Reviews Count -->
+                        <div class="rating-badge-container">
+                            <span class="star-rating-score">
+                                <i class="bi bi-star-fill star-icon-gold"></i>
+                                <span th:text="${food.averageRating > 0 ? food.averageRating : 'New'}">0.0</span>
+                            </span>
+                            <div class="d-inline-flex align-items-center">
+                                <!-- Star Icons Generation based on average rating -->
+                                <th:block th:each="i : ${#numbers.sequence(1, 5)}">
+                                    <i class="bi bi-star-fill star-icon-gold small" 
+                                       th:if="${food.averageRating >= i}"></i>
+                                    <i class="bi bi-star-half star-icon-gold small" 
+                                       th:if="${food.averageRating < i and food.averageRating >= (i - 0.5)}"></i>
+                                    <i class="bi bi-star star-icon-gray small" 
+                                       th:if="${food.averageRating < (i - 0.5)}"></i>
+                                </th:block>
+                            </div>
+                            <span class="reviews-count-text ms-1" 
+                                  th:text="'(' + ${food.feedbackCount} + ' ' + (${food.feedbackCount} == 1 ? 'review' : 'reviews') + ')'">
+                                (0 reviews)
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Card Action Button -->
+                    <div class="card-action-footer">
+                        <a th:href="@{'/food/' + ${food.id}}" class="btn btn-view-feedback">
+                            <span>Give Feedback & View Reviews</span>
+                            <i class="bi bi-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- No Search Results Found Message -->
+        <div id="noResultsMsg" class="d-none text-center py-5">
+            <div class="display-1 text-muted"><i class="bi bi-search"></i></div>
+            <h4 class="fw-bold mt-3">No Food Items Found</h4>
+            <p class="text-muted">Try searching with a different food name or clear your search query.</p>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container text-center">
+            <p class="mb-1 fw-bold text-light">Online Food Feedback System &bull; Java Spring Boot Mini-Project</p>
+            <p class="mb-0 text-secondary small">Built with Spring Boot 4, Spring Data JPA, Hibernate, MySQL, Thymeleaf & Bootstrap 5</p>
+        </div>
+    </footer>
+
+    <!-- Bootstrap 5 Bundle JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Custom Application JS -->
+    <script th:src="@{/js/app.js}"></script>
+</body>
+</html>
