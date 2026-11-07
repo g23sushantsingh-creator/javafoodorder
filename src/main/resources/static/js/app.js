@@ -36,7 +36,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     const itemCat = (col.getAttribute('data-category') || '').toLowerCase();
                     if (selectedCategory === 'all' || 
                         itemCat === selectedCategory || 
-                        (selectedCategory.includes('wrap') && itemCat.includes('wrap'))) {
+                        (selectedCategory.includes('wrap') && itemCat.includes('wrap')) ||
+                        (selectedCategory.includes('snack') && itemCat.includes('snack')) ||
+                        (selectedCategory.includes('tea') && (itemCat.includes('tea') || itemCat.includes('beverage')))) {
                         col.style.display = '';
                     } else {
                         col.style.display = 'none';

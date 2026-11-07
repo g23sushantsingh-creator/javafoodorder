@@ -30,6 +30,9 @@ class FoodFeedbackIntegrationTests {
     @Autowired
     private FeedbackRepository feedbackRepository;
 
+    @Autowired
+    private com.example.demo.config.DataInitializer dataInitializer;
+
     @Test
     @DisplayName("1. Home page should render food items with average ratings")
     void testHomePage() throws Exception {
@@ -246,5 +249,84 @@ class FoodFeedbackIntegrationTests {
         mockMvc.perform(get("/admin/login?logout=true"))
                 .andExpect(status().isOk())
                 .andExpect(content().string(org.hamcrest.Matchers.containsString("You have been logged out successfully")));
+    }
+
+    @Test
+    @DisplayName("16. Home page should render all 8 category filter buttons including new categories")
+    void testHomePageNewCategoriesRendered() throws Exception {
+        mockMvc.perform(get("/"))
+                .andExpect(status().isOk())
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("data-filter=\"Snacks & Street Food\"")))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("data-filter=\"Tea & Beverages\"")))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("Snacks & Street Food")))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("Tea & Beverages")));
+    }
+
+    @Test
+    @DisplayName("17. Admin food form should contain all 8 categories in dropdown options")
+    void testAdminFoodFormContainsEightCategories() throws Exception {
+        mockMvc.perform(get("/admin/foods/new").with(user("admin").roles("ADMIN")))
+                .andExpect(status().isOk())
+                .andExpect(view().name("admin/food-form"))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("Pizza & Italian")))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("Burgers")))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("Wraps & Rolls")))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("Indian Special")))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("Desserts")))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("Healthy")))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("Snacks & Street Food")))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("Tea & Beverages")));
+    }
+
+    @Test
+    @DisplayName("18. Admin should be able to create dishes in new categories")
+    void testAdminCreateFoodInNewCategory() throws Exception {
+        mockMvc.perform(post("/admin/foods/create")
+                        .with(user("admin").roles("ADMIN"))
+                        .with(csrf())
+                        .param("name", "Test Masala Corn")
+                        .param("description", "Spicy buttered sweet corn seasoned with chaat masala and lemon.")
+                        .param("price", "49.00")
+                        .param("category", "Snacks & Street Food")
+                        .param("imageUrl", "https://images.unsplash.com/photo-1551754655-cd27e38d2076?auto=format&fit=crop&w=800&q=80")
+                        .param("available", "true"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/admin/foods"));
+
+        FoodItem created = foodItemRepository.findFirstByName("Test Masala Corn").orElse(null);
+        assertThat(created).isNotNull();
+        assertThat(created.getCategory()).isEqualTo("Snacks & Street Food");
+    }
+
+    @Test
+    @DisplayName("19. Sample demo reviews should be saved, linked to food items, and visible in food details")
+    void testSampleDemoReviewsPersistedAndVisible() throws Exception {
+        FoodItem samosa = foodItemRepository.findFirstByName("Samosa").orElse(null);
+        assertThat(samosa).isNotNull();
+
+        long feedbackCount = feedbackRepository.countByFoodItemId(samosa.getId());
+        assertThat(feedbackCount).isGreaterThanOrEqualTo(1);
+
+        mockMvc.perform(get("/food/" + samosa.getId()))
+                .andExpect(status().isOk())
+                .andExpect(view().name("food-details"))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("[Demo Reviewer]")))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("[Sample Review]")));
+    }
+
+    @Test
+    @DisplayName("20. Database seeding should be idempotent and not create duplicate dishes or reviews")
+    void testSeedingIdempotency() {
+        long itemsBefore = foodItemRepository.count();
+        long feedbacksBefore = feedbackRepository.count();
+
+        // Run DataInitializer again
+        dataInitializer.run();
+
+        long itemsAfter = foodItemRepository.count();
+        long feedbacksAfter = feedbackRepository.count();
+
+        assertThat(itemsAfter).isEqualTo(itemsBefore);
+        assertThat(feedbacksAfter).isEqualTo(feedbacksBefore);
     }
 }

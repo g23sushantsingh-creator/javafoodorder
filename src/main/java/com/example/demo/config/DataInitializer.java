@@ -7,6 +7,7 @@ import com.example.demo.repository.FoodItemRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -333,5 +334,179 @@ public class DataInitializer implements CommandLineRunner {
                 }
             }
         }
+
+        // Ensure dishes for the new categories ("Snacks & Street Food" and "Tea & Beverages") exist idempotently.
+        // This guarantees they are added to existing databases (such as the deployed database on Render) without wiping any data.
+        seedNewCategoryDishesIfAbsent();
+
+        // Ensure realistic sample/demo reviews exist idempotently across multiple dishes.
+        // This ensures sample reviews are present on the deployed application and remain visible after restarts/redeploys.
+        seedSampleDemoReviewsIfAbsent();
+    }
+
+    private void seedNewCategoryDishesIfAbsent() {
+        List<FoodItem> newDishes = List.of(
+                new FoodItem(
+                        "Samosa",
+                        "Crispy golden fried triangle pastry filled with spiced potatoes, green peas, and whole coriander seeds, served with mint and sweet tamarind chutneys.",
+                        30.00,
+                        "Snacks & Street Food",
+                        "https://images.unsplash.com/photo-1601050690597-df0568f70950?auto=format&fit=crop&w=800&q=80",
+                        true
+                ),
+                new FoodItem(
+                        "Vada Pav",
+                        "Iconic Mumbai street burger featuring a spiced golden potato fritter tucked into a soft bun with fiery red garlic and tangy green chutneys.",
+                        35.00,
+                        "Snacks & Street Food",
+                        "https://images.unsplash.com/photo-1626132647523-66f5bf380027?auto=format&fit=crop&w=800&q=80",
+                        true
+                ),
+                new FoodItem(
+                        "Kachori",
+                        "Flaky, deep-fried puff pastry stuffed with a savory spiced moong dal mixture, served with tangy tamarind saunth and spicy mint dip.",
+                        40.00,
+                        "Snacks & Street Food",
+                        "https://images.unsplash.com/photo-1606491956689-2ea866880c84?auto=format&fit=crop&w=800&q=80",
+                        true
+                ),
+                new FoodItem(
+                        "Grilled Vegetable Sandwich",
+                        "Toasted multi-grain bread layered with sliced cucumber, tomatoes, bell peppers, melted cheddar cheese, and fresh cilantro spread.",
+                        89.00,
+                        "Snacks & Street Food",
+                        "https://images.unsplash.com/photo-1528735602780-2552fd46c7af?auto=format&fit=crop&w=800&q=80",
+                        true
+                ),
+                new FoodItem(
+                        "Cutting Chai",
+                        "Authentic roadside-style strong half-cup tea brewed with freshly crushed ginger, green cardamom, and rich boiled milk.",
+                        20.00,
+                        "Tea & Beverages",
+                        "https://images.unsplash.com/photo-1576092768241-dec231879fc3?auto=format&fit=crop&w=800&q=80",
+                        true
+                ),
+                new FoodItem(
+                        "Masala Tea",
+                        "Aromatic Assam black tea simmered with milk, ginger, cloves, cinnamon stick, and crushed green cardamom pods.",
+                        30.00,
+                        "Tea & Beverages",
+                        "https://images.unsplash.com/photo-1544787219-7f47ccb76574?auto=format&fit=crop&w=800&q=80",
+                        true
+                ),
+                new FoodItem(
+                        "South Indian Filter Coffee",
+                        "Traditional frothy filter coffee brewed from freshly roasted chicory beans and blended with hot frothed milk.",
+                        45.00,
+                        "Tea & Beverages",
+                        "https://images.unsplash.com/photo-1509042239860-f550ce710b93?auto=format&fit=crop&w=800&q=80",
+                        true
+                ),
+                new FoodItem(
+                        "Classic Cold Coffee",
+                        "Chilled blended espresso drink prepared with creamy milk, chocolate drizzle, and topped with rich coffee froth.",
+                        79.00,
+                        "Tea & Beverages",
+                        "https://images.unsplash.com/photo-1517701550927-30cf4ba1dba5?auto=format&fit=crop&w=800&q=80",
+                        true
+                ),
+                new FoodItem(
+                        "Sweet Mango Lassi",
+                        "Traditional thick, creamy yogurt shake infused with sweet Alphonso mango pulp, cardamom, and sliced pistachios.",
+                        65.00,
+                        "Tea & Beverages",
+                        "https://images.unsplash.com/photo-1626777552726-4a6b54c97e46?auto=format&fit=crop&w=800&q=80",
+                        true
+                )
+        );
+
+        for (FoodItem item : newDishes) {
+            if (!foodItemRepository.existsByName(item.getName())) {
+                foodItemRepository.save(item);
+            }
+        }
+    }
+
+    private void seedSampleDemoReviewsIfAbsent() {
+        seedSingleSampleReview(
+                "Samosa",
+                5,
+                "Aditi Sharma [Demo Reviewer]",
+                "[Sample Review] Crispy golden crust with a perfectly spiced potato and pea stuffing. Served piping hot with tangy tamarind chutney!",
+                LocalDateTime.now().minusDays(1).minusHours(3)
+        );
+        seedSingleSampleReview(
+                "Cutting Chai",
+                5,
+                "Kunal Verma (Sample Review)",
+                "[Sample Review] Strong, brisk cutting chai with a great ginger kick. The ideal campus refreshment during afternoon breaks.",
+                LocalDateTime.now().minusDays(2).minusHours(6)
+        );
+        seedSingleSampleReview(
+                "Vada Pav",
+                4,
+                "Pooja Hegde [Demo Reviewer]",
+                "[Sample Review] Authentic Mumbai flavor with spicy garlic chutney. Soft pav and freshly fried vada. Really enjoyed it.",
+                LocalDateTime.now().minusDays(4).minusHours(2)
+        );
+        seedSingleSampleReview(
+                "Masala Tea",
+                5,
+                "Vikram Iyer (Sample Review)",
+                "[Sample Review] Rich cardamom aroma and great balance of spices. High quality brew that tastes genuinely homemade.",
+                LocalDateTime.now().minusDays(6).minusHours(5)
+        );
+        seedSingleSampleReview(
+                "Artisan Margherita Pizza",
+                4,
+                "Sneha Patel [Demo Reviewer]",
+                "[Sample Review] Thin crust with flavorful tomato sauce and plenty of mozzarella. A solid 4-star choice for lunch.",
+                LocalDateTime.now().minusDays(9).minusHours(4)
+        );
+        seedSingleSampleReview(
+                "Classic Smash Cheeseburger",
+                4,
+                "Rohan Joshi (Sample Review)",
+                "[Sample Review] Juicy double patty with melted cheddar and caramelized onions. Good balance of flavors and fresh bun.",
+                LocalDateTime.now().minusDays(13).minusHours(7)
+        );
+        seedSingleSampleReview(
+                "Classic Cold Coffee",
+                5,
+                "Tanvi Shah [Demo Reviewer]",
+                "[Sample Review] Thick, frothy, and perfectly chilled with a generous chocolate drizzle. Excellent quality and taste!",
+                LocalDateTime.now().minusDays(17).minusHours(2)
+        );
+        seedSingleSampleReview(
+                "Grilled Vegetable Sandwich",
+                3,
+                "Arjun Mehta (Sample Review)",
+                "[Sample Review] Fresh cucumber, tomatoes, and cheese slices. Good taste, though the bread could have been toasted slightly crispier.",
+                LocalDateTime.now().minusDays(21).minusHours(8)
+        );
+        seedSingleSampleReview(
+                "Kachori",
+                3,
+                "Meera Nair [Demo Reviewer]",
+                "[Sample Review] Flaky outer crust with spicy dal filling. Good flavor, but was served slightly lukewarm.",
+                LocalDateTime.now().minusDays(25).minusHours(3)
+        );
+        seedSingleSampleReview(
+                "Sweet Mango Lassi",
+                4,
+                "Rajesh Kannan (Sample Review)",
+                "[Sample Review] Very smooth and refreshing mango flavor. Nicely garnished with pistachios. Great dessert drink.",
+                LocalDateTime.now().minusDays(30).minusHours(5)
+        );
+    }
+
+    private void seedSingleSampleReview(String foodName, int rating, String customerName, String comment, LocalDateTime createdAt) {
+        foodItemRepository.findFirstByName(foodName).ifPresent(food -> {
+            if (!feedbackRepository.existsByFoodItemIdAndComment(food.getId(), comment)) {
+                Feedback fb = new Feedback(food, rating, customerName, comment);
+                fb.setCreatedAt(createdAt);
+                feedbackRepository.save(fb);
+            }
+        });
     }
 }

@@ -12,6 +12,16 @@ import java.util.List;
 @Entity
 @Table(name = "food_item")
 public class FoodItem {
+    public static final List<String> CATEGORIES = List.of(
+            "Pizza & Italian",
+            "Burgers",
+            "Wraps & Rolls",
+            "Indian Special",
+            "Desserts",
+            "Healthy",
+            "Snacks & Street Food",
+            "Tea & Beverages"
+    );
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
