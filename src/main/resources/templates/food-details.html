@@ -167,7 +167,7 @@
 
                         <!-- Customer Name -->
                         <div class="mb-3">
-                            <label for="customerName" class="form-label fw-semibold">Your Name / Student ID <span class="text-danger">*</span></label>
+                            <label for="customerName" class="form-label fw-semibold">Your Name <span class="text-danger">*</span></label>
                             <div class="input-group">
                                 <span class="input-group-text bg-light"><i class="bi bi-person"></i></span>
                                 <input type="text" 
@@ -175,7 +175,7 @@
                                        th:field="*{customerName}" 
                                        class="form-control" 
                                        th:classappend="${#fields.hasErrors('customerName')} ? 'is-invalid' : ''"
-                                       placeholder="e.g. Alex Johnson or CS-2024-042">
+                                       placeholder="Enter your name">
                             </div>
                             <div th:if="${#fields.hasErrors('customerName')}" class="text-danger small mt-1">
                                 <i class="bi bi-exclamation-circle me-1"></i><span th:errors="*{customerName}">Name Error</span>
@@ -185,7 +185,7 @@
                         <!-- Feedback Comment -->
                         <div class="mb-4">
                             <div class="d-flex justify-content-between align-items-center mb-1">
-                                <label for="comment" class="form-label fw-semibold mb-0">Your Comments & Experience <span class="text-danger">*</span></label>
+                                <label for="comment" class="form-label fw-semibold mb-0">Your Comments & Experience (Optional)</label>
                                 <span class="text-muted small"><span id="charCount">0</span>/1000</span>
                             </div>
                             <textarea id="comment" 
@@ -193,7 +193,7 @@
                                       rows="4" 
                                       class="form-control" 
                                       th:classappend="${#fields.hasErrors('comment')} ? 'is-invalid' : ''"
-                                      placeholder="How was the taste, presentation, temperature, and portion size?"></textarea>
+                                      placeholder="Share your experience if you'd like (optional)..."></textarea>
                             <div th:if="${#fields.hasErrors('comment')}" class="text-danger small mt-1">
                                 <i class="bi bi-exclamation-circle me-1"></i><span th:errors="*{comment}">Comment Error</span>
                             </div>
@@ -313,7 +313,9 @@
                                 <i class="bi bi-star-fill me-1"></i><span th:text="${fb.rating} + '.0'">5.0</span>
                             </span>
                         </div>
-                        <p class="mb-0 text-secondary fs-6" th:text="${fb.comment}">
+                        <p class="mb-0 text-secondary fs-6" 
+                           th:if="${fb.comment != null and !fb.comment.isEmpty()}"
+                           th:text="${fb.comment}">
                             Review comment text goes here...
                         </p>
                     </div>
@@ -327,8 +329,8 @@
     <!-- Footer -->
     <footer>
         <div class="container text-center">
-            <p class="mb-1 fw-bold text-light">Online Food Feedback System &bull; Java Spring Boot Mini-Project</p>
-            <p class="mb-0 text-secondary small">Built with Spring Boot 4, Spring Data JPA, Hibernate, MySQL, Thymeleaf & Bootstrap 5</p>
+            <h5 class="fw-bold text-light mb-1">Food Feedback &amp; Reviews</h5>
+            <p class="text-secondary small mb-0">Your feedback helps us serve better.</p>
         </div>
     </footer>
 

@@ -13,12 +13,12 @@ public class FeedbackFormDto {
     @Max(value = 5, message = "Rating cannot exceed 5 stars")
     private Integer rating;
 
-    @NotBlank(message = "Please enter your name or student ID")
+    @NotBlank(message = "Please enter your name")
     @Size(min = 2, max = 80, message = "Name must be between 2 and 80 characters")
     private String customerName;
 
-    @NotBlank(message = "Please write your feedback comment")
-    @Size(min = 3, max = 1000, message = "Comment must be between 3 and 1000 characters")
+    // Comment is optional — no @NotBlank. Max length still enforced when present.
+    @Size(max = 1000, message = "Comment cannot exceed 1000 characters")
     private String comment;
 
     public FeedbackFormDto() {

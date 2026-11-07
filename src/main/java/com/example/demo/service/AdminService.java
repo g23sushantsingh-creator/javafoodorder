@@ -13,6 +13,7 @@ import java.math.RoundingMode;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAdjusters;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -58,6 +59,12 @@ public class AdminService {
 
         // 5. Recent Customer Feedback (Latest 10)
         stats.setRecentFeedbacks(feedbackRepository.findTop10ByOrderByCreatedAtDesc());
+
+        // 6. Feedback Activity — daily counts for the last 7 days
+        stats.setFeedbackActivity(calculateFeedbackActivity());
+
+        // 7. Top 5 Best-Rated Dishes
+        stats.setTop5RatedDishes(calculateTop5RatedDishes());
 
         return stats;
     }
@@ -230,5 +237,89 @@ public class AdminService {
 
     public void deleteFeedback(Long id) {
         feedbackRepository.deleteById(id);
+    }
+
+    // ==================== ANALYTICS: FEEDBACK ACTIVITY (FEATURE 1) ====================
+
+    /**
+     * Builds a list of daily feedback submission counts for the last 7 days
+     * (today inclusive), including days with zero submissions so the chart
+     * always shows a full 7-point dataset.
+     */
+    @Transactional(readOnly = true)
+    public List<FeedbackActivityDto> calculateFeedbackActivity() {
+        // Fetch all feedbacks from 6 days ago (start of day) up to now
+        LocalDate today = LocalDate.now();
+        LocalDateTime since = today.minusDays(6).atStartOfDay();
+        List<Feedback> recentFeedbacks = feedbackRepository.findFeedbacksSince(since);
+
+        // Build a map of date → count using the feedback's createdAt date
+        Map<LocalDate, Long> countByDate = recentFeedbacks.stream()
+                .collect(Collectors.groupingBy(
+                        f -> f.getCreatedAt().toLocalDate(),
+                        Collectors.counting()
+                ));
+
+        // Date formatters
+        DateTimeFormatter labelFmt = DateTimeFormatter.ofPattern("MMM dd");
+        DateTimeFormatter keyFmt   = DateTimeFormatter.ISO_LOCAL_DATE;
+
+        // Build the result list covering each of the last 7 days (oldest first)
+        List<FeedbackActivityDto> result = new ArrayList<>();
+        for (int i = 6; i >= 0; i--) {
+            LocalDate date = today.minusDays(i);
+            long count = countByDate.getOrDefault(date, 0L);
+            result.add(new FeedbackActivityDto(
+                    date.format(labelFmt),
+                    date.format(keyFmt),
+                    count
+            ));
+        }
+        return result;
+    }
+
+    // ==================== ANALYTICS: TOP 5 RATED DISHES (FEATURE 2) ====================
+
+    /**
+     * Returns the top 5 food items ranked by their average customer rating.
+     * Dishes with zero reviews are excluded.
+     * Ties in average rating are broken by the dish with more reviews.
+     * Average ratings are rounded to one decimal place.
+     */
+    @Transactional(readOnly = true)
+    public List<TopRatedDishDto> calculateTop5RatedDishes() {
+        List<FoodItem> allFoods = foodItemRepository.findAll();
+
+        // Build a scored list, excluding items with no reviews
+        List<TopRatedDishDto> scored = new ArrayList<>();
+        for (FoodItem food : allFoods) {
+            long count = food.getFeedbackCount();
+            if (count == 0) {
+                continue; // exclude unreviewed items
+            }
+            double avg = food.getAverageRating(); // already rounded to 1dp in the entity
+            scored.add(new TopRatedDishDto(
+                    food.getId(),
+                    food.getName(),
+                    food.getImageUrl(),
+                    food.getCategory(),
+                    avg,
+                    count,
+                    0 // rank assigned below
+            ));
+        }
+
+        // Sort: descending average rating, then descending review count for ties
+        scored.sort((a, b) -> {
+            int cmp = Double.compare(b.getAverageRating(), a.getAverageRating());
+            return cmp != 0 ? cmp : Long.compare(b.getReviewCount(), a.getReviewCount());
+        });
+
+        // Take top 5 and assign ranks 1–5
+        List<TopRatedDishDto> top5 = scored.stream().limit(5).collect(Collectors.toList());
+        for (int i = 0; i < top5.size(); i++) {
+            top5.get(i).setRank(i + 1);
+        }
+        return top5;
     }
 }

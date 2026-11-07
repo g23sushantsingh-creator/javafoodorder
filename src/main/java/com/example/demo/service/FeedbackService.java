@@ -31,7 +31,10 @@ public class FeedbackService {
         feedback.setFoodItem(foodItem);
         feedback.setRating(dto.getRating());
         feedback.setCustomerName(dto.getCustomerName().trim());
-        feedback.setComment(dto.getComment().trim());
+
+        // Comment is optional — store trimmed value, or empty string if blank/null
+        String comment = dto.getComment();
+        feedback.setComment(comment != null && !comment.trim().isEmpty() ? comment.trim() : "");
 
         return feedbackRepository.save(feedback);
     }

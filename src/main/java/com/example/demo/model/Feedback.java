@@ -3,7 +3,6 @@ package com.example.demo.model;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.time.LocalDateTime;
@@ -29,9 +28,9 @@ public class Feedback {
     @Column(name = "customer_name", length = 100)
     private String customerName;
 
-    @NotBlank(message = "Feedback comment cannot be blank")
-    @Size(min = 3, max = 1000, message = "Comment must be between 3 and 1000 characters")
-    @Column(nullable = false, length = 1000)
+    // Comment is optional — customers can submit rating-only feedback.
+    @Size(max = 1000, message = "Comment cannot exceed 1000 characters")
+    @Column(nullable = true, length = 1000)
     private String comment;
 
     @Column(name = "created_at", nullable = false, updatable = false)

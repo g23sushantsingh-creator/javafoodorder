@@ -16,6 +16,12 @@ public class AdminDashboardStatsDto {
     private List<NeedsImprovementDto> needsImprovementItems = new ArrayList<>();
     private List<Feedback> recentFeedbacks = new ArrayList<>();
 
+    // Feature 1: Feedback Activity (last 7 days, daily counts)
+    private List<FeedbackActivityDto> feedbackActivity = new ArrayList<>();
+
+    // Feature 2: Top 5 Best-Rated Dishes
+    private List<TopRatedDishDto> top5RatedDishes = new ArrayList<>();
+
     public AdminDashboardStatsDto() {
     }
 
@@ -81,5 +87,21 @@ public class AdminDashboardStatsDto {
 
     public void setRecentFeedbacks(List<Feedback> recentFeedbacks) {
         this.recentFeedbacks = recentFeedbacks;
+    }
+
+    public List<FeedbackActivityDto> getFeedbackActivity() {
+        return feedbackActivity;
+    }
+
+    public void setFeedbackActivity(List<FeedbackActivityDto> feedbackActivity) {
+        this.feedbackActivity = feedbackActivity;
+    }
+
+    public List<TopRatedDishDto> getTop5RatedDishes() {
+        return top5RatedDishes;
+    }
+
+    public void setTop5RatedDishes(List<TopRatedDishDto> top5RatedDishes) {
+        this.top5RatedDishes = top5RatedDishes;
     }
 }
