@@ -21,6 +21,10 @@ public interface FeedbackRepository extends JpaRepository<Feedback, Long> {
 
     long countByFoodItemIdAndRating(Long foodItemId, Integer rating);
 
+    boolean existsByFoodItemIdAndComment(Long foodItemId, String comment);
+
+    boolean existsByComment(String comment);
+
     // Queries for Admin Dashboard & Analytics
     long countByRatingLessThanEqual(Integer rating);
 
