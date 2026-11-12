@@ -96,7 +96,8 @@ public class AdminService {
 
         // Group by food item and compute average rating
         Map<FoodItem, List<Feedback>> grouped = weeklyFeedbacks.stream()
-                .collect(Collectors.groupingBy(Feedback::getFoodItem));
+                .filter(fb -> fb != null && fb.getFoodItem() != null)
+                .collect(Collectors.groupingBy(fb -> Objects.requireNonNull(fb.getFoodItem())));
 
         FoodItem topFood = null;
         double bestAvg = -1.0;
@@ -104,7 +105,14 @@ public class AdminService {
 
         for (Map.Entry<FoodItem, List<Feedback>> entry : grouped.entrySet()) {
             List<Feedback> fbs = entry.getValue();
-            double avg = fbs.stream().mapToInt(Feedback::getRating).average().orElse(0.0);
+            double avg = fbs.stream()
+                    .filter(fb -> fb != null && fb.getRating() != null)
+                    .mapToInt(fb -> {
+                        Integer rating = fb.getRating();
+                        return rating != null ? rating.intValue() : 0;
+                    })
+                    .average()
+                    .orElse(0.0);
             if (avg > bestAvg || (avg == bestAvg && fbs.size() > bestCount)) {
                 bestAvg = avg;
                 bestCount = fbs.size();
